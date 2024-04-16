@@ -25,7 +25,7 @@ Github: [Game AI System Study Project (github.com)](https://github.com/qq8758711
 
 AI主要模拟闲置(Idle)、巡逻(Patrol)、追逐(Chase)、攻击(Attack)四种行为状态，并按照如图所示条件进行状态转移，此外还引入了死亡和休眠两个额外状态：
 
-![State Relationship](/Doc/Res/State Relationship.png)
+![State Relationship](.%2FDoc%2FRes%2FState%20Relationship.png)
 
 闲置状态：Eyes置灰色，按照状态预设的闲置时间进行倒计时，结束后切换为巡逻状态。
 
@@ -45,7 +45,7 @@ AI主要模拟闲置(Idle)、巡逻(Patrol)、追逐(Chase)、攻击(Attack)四�
 
 1. 状态机实现：项目的状态机模块分为状态(State抽象类及其派生状态类)、状态管理器(State  Manager)和状态图(StateMap)，它们的关系如下：
 
-![StateMachine Implement](/Doc/Res/StateMachine Implement.png)
+![StateMachine Implement](.%2FDoc%2FRes%2FStateMachine%20Implement.png)
 
 其中，State作为抽象类被各具体状态派生，用于为各派生状态设置特定预设参数，运行时执行的行为操作以及按照现有条件返回下一需要切换的状态。
 
