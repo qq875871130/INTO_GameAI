@@ -1,3 +1,5 @@
+using System;
+using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -7,24 +9,39 @@ namespace CV.AI
 {
     public class AiChaseState : AiState
     {
+        [FoldoutGroup("Settings/Chase"), Range(0f, 5f)]
+        public float ChaseSpeed = 1.5f;
+
+        private AiCharacterController _controller;
+
         public override void Init()
         {
-            throw new System.NotImplementedException();
         }
 
         public override void Exit()
         {
-            throw new System.NotImplementedException();
         }
 
         public override AiState RunCurrentState(AiStateManager stateManager)
         {
-            throw new System.NotImplementedException();
+            if (stateManager && !_controller) _controller = GetController<AiCharacterController>(stateManager);
+            if (_controller.IsInSightRange)
+            {
+                if (_controller.IsInAttackRange)
+                {
+                    return stateManager.StateMap.GetState("Attack");
+                }
+                return this;
+            }
+            return stateManager.StateMap.GetState("Idle");
         }
 
         protected override void OnRunning()
         {
-            throw new System.NotImplementedException();
+            if (_controller && _controller.HostileTarget)
+            {
+                _controller.Move(_controller.HostileTarget.position, ChaseSpeed);
+            }
         }
     }
 }

@@ -1,7 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using CV.Combat;
+using CV.HealthSystem;
 using CV.Helper;
 using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
@@ -31,6 +34,11 @@ namespace CV.AI
         [FoldoutGroup("Basic Parameters/Detection")]
         public LayerMask ObstacleMask;
 
+        [FoldoutGroup("Basic Parameters/Health")]
+        public CharacterHealth Health;
+        [FoldoutGroup("Basic Parameters/Combat")]
+        public Shooter Shooter;
+
         [TitleGroup("Debug")]
         [SerializeField, FoldoutGroup("Debug/Gizmos")]
         public bool IsGizmosEnable = true;
@@ -38,11 +46,17 @@ namespace CV.AI
         public bool IsGizmosInPlayMode = false;
 
         [HideInInspector] public Vector3 DirectionToHostile;
-        [HideInInspector] public Transform HostileTarget;
 
+        [SerializeField, FoldoutGroup("Debug/Watchdog"), ReadOnly]
+        public Transform HostileTarget;
+
+        [ShowInInspector, FoldoutGroup("Debug/Watchdog"), ReadOnly]
         public bool IsInSightRange { get; protected set; } = false;
+        [ShowInInspector, FoldoutGroup("Debug/Watchdog"), ReadOnly]
         public bool IsInAttackRange { get; protected set; } = false;
+        [ShowInInspector, FoldoutGroup("Debug/Watchdog"), ReadOnly]
         public bool IsLookHostile { get; protected set; } = false;
+        [ShowInInspector, FoldoutGroup("Debug/Watchdog"), ReadOnly]
         public bool IsAlive { get; protected set; } = true;
 
         protected NavMeshAgent NavMeshAgent;
@@ -53,6 +67,8 @@ namespace CV.AI
         protected virtual void Awake()
         {
             NavMeshAgent = GetComponent<NavMeshAgent>();
+            Health = Health ? Health : GetComponent<CharacterHealth>();
+            Shooter = Shooter ? Shooter : GetComponent<Shooter>();
         }
 
         protected virtual void Update()
@@ -60,12 +76,15 @@ namespace CV.AI
             Transform eyes = Eyes ? Eyes : transform;
             //Update detector
             IsInSightRange = TargetDetector.CheckTargetRange(
-                eyes,
-                RadiusFov,
-                DegreeFov,
-                HostileMask,
-                out HostileTarget,
-                out DirectionToHostile);
+                                 eyes,
+                                 RadiusFov,
+                                 DegreeFov,
+                                 HostileMask,
+                                 out HostileTarget,
+                                 out DirectionToHostile)
+                             &&
+                             !Physics.Raycast(Eyes.position, DirectionToHostile,
+                                 (HostileTarget.position - Eyes.position).magnitude, ObstacleMask);
 
             IsInAttackRange = IsInSightRange && TargetDetector.CheckTargetRange(
                 eyes,

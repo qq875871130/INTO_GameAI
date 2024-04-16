@@ -230,5 +230,13 @@ namespace CV.AI
             CurrentState = state;
             CurrentState.Run();
         }
+
+        public void JumpToState(string stateKey)
+        {
+            if (StateMap != null)
+            {
+                SwitchState(StateMap.GetState(stateKey));
+            }
+        }
     }
 }

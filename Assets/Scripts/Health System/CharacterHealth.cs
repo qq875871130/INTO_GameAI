@@ -1,13 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using CV.EventSystem;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace CV.HealthSystem
 {
-    public class CharacterHealth : MonoBehaviour
+    public class CharacterHealth : MonoBehaviour, IHealthMessageHandle
     {
         private const float ToleranceHealth = 0.05f;
 
@@ -22,6 +23,8 @@ namespace CV.HealthSystem
         [FoldoutGroup("Health Settings/Events")]
         public UnityEvent OnDying;
 
+        public bool IsAlive { get; protected set; } = true;
+
         public float CurrentHealth
         {
             get => _currentHealth;
@@ -32,7 +35,12 @@ namespace CV.HealthSystem
                     _currentHealth = value;
                     if (value <= 0)
                     {
+                        IsAlive = false;
                         OnDying?.Invoke();
+                    }
+                    else
+                    {
+                        IsAlive = true;
                     }
                     OnHealthChange?.Invoke(value);
                     return;
@@ -46,7 +54,7 @@ namespace CV.HealthSystem
             _currentHealth = MaxHealth;
         }
 
-        public void Damage(float damageVal)
+        public void TakeDamage(float damageVal)
         {
             if (CurrentHealth >= 0)
             {
